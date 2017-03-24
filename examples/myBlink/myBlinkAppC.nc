@@ -1,4 +1,4 @@
-// $Id: RadioCountToLedsAppC.nc,v 1.5 2010-06-29 22:07:17 scipio Exp $
+// $Id: BlinkAppC.nc,v 1.6 2010-06-29 22:07:14 scipio Exp $
 
 /*									tab:4
  * Copyright (c) 2000-2005 The Regents of the University  of California.  
@@ -31,7 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * Copyright (c) 2002-2003 Intel Corporation
+ * Copyright (c) 2002-2005 Intel Corporation
  * All rights reserved.
  *
  * This file is distributed under the terms in the attached INTEL-LICENSE     
@@ -40,70 +40,43 @@
  * 94704.  Attention:  Intel License Inquiry.
  */
 
-#define NEW_PRINTF_SEMANTICS 
-#include "RadioCountToLeds.h"
-#include "printf.h"
-#include "Msp430Adc12.h"
-//#include "DataMsg.h"
-//#include <stdio.h>
-
 /**
- * Configuration for the RadioCountToLeds application. RadioCountToLeds 
- * maintains a 4Hz counter, broadcasting its value in an AM packet 
- * every time it gets updated. A RadioCountToLeds node that hears a counter 
- * displays the bottom three bits on its LEDs. This application is a useful 
- * test to show that basic AM communication and timers work.
+ * Blink is a basic application that toggles a mote's LED periodically.
+ * It does so by starting a Timer that fires every second. It uses the
+ * OSKI TimerMilli service to achieve this goal.
  *
- * @author Philip Levis
- * @date   June 6 2005
- */
+ * @author tinyos-help@millennium.berkeley.edu
+ **/
+#define NEW_PRINTF_SEMANTICS
+#include "printf.h"
+#include "RadioCountToLeds.h"
 
-configuration RadioCountToLedsAppC {}
-implementation {
-  components MainC, RadioCountToLedsC as App, LedsC;
-  components new TimerMilliC();
-
-  // for radio communication
-  components new AMSenderC(AM_RADIO_COUNT_MSG);
-  components new AMReceiverC(AM_RADIO_COUNT_MSG);
-  components ActiveMessageC;
-
-  // for setting and getting transmission power
-  components CC2420PacketC;
-  
-  // for serial communication with 
+configuration myBlinkAppC
+{
+}
+implementation
+{
+  components MainC, myBlinkC, LedsC;
+  components new TimerMilliC() as Timer0;
+ 
+  // needed for printing to console 
   components PrintfC;
   components SerialStartC;
-  components ActiveMessageAddressC;
 
-  // for ADC
-  //components MSP430ADC12C;
-  components new ADCSensorsXC() as SensorX;
-  components new ADCSensorsYC() as SensorY;
-  components new ADCSensorsZC() as SensorZ;
+  // needed for sensing
+  components new SensirionSht11C() as TempSensor; 
 
-  // for sensing using built-in sensors
-  //components new Taos2550C() as LightSensor;
+  // needed for sending via radio
+  components new AMSenderC(AM_RADIO_COUNT_MSG);
+  components ActiveMessageC;
 
-  App.Boot -> MainC.Boot;
-  
-  App.Receive -> AMReceiverC;
-  App.AMSend -> AMSenderC;
-  App.AMControl -> ActiveMessageC;
-  App.Leds -> LedsC;
-  App.MilliTimer -> TimerMilliC;
-  App.Packet -> AMSenderC;
-  App.CC2420Packet -> CC2420PacketC;
-  App.AMAdd -> ActiveMessageAddressC;
-  App.AMPacket -> AMSenderC;
+  myBlinkC -> MainC.Boot;
 
-  // for ADC
-  App.ReadX -> SensorX.Read;
-  App.ReadY -> SensorY.Read;
-  App.ReadZ -> SensorZ.Read;
-
-  // for sensing
-  //App.ReadSensor -> LightSensor.VisibleLight;
+  myBlinkC.Timer0 -> Timer0;
+  myBlinkC.Leds -> LedsC;
+  myBlinkC.Read -> TempSensor.Temperature;
+  myBlinkC.AMSend -> AMSenderC;
+  myBlinkC.AMControl -> ActiveMessageC;
+  myBlinkC.Packet -> AMSenderC;  
 }
-
 

@@ -44,6 +44,8 @@
 #include "RadioCountToLeds.h"
 #include "printf.h"
 #include "Msp430Adc12.h"
+//#include "DataMsg.h"
+//#include <stdio.h>
  
 /**
  * Implementation of the RadioCountToLeds application. RadioCountToLeds 
@@ -75,6 +77,9 @@ module RadioCountToLedsC @safe() {
     interface Read<uint16_t> as ReadX;
     interface Read<uint16_t> as ReadY;
     interface Read<uint16_t> as ReadZ;
+  
+    // for sensing
+    //interface Read<uint16_t> as ReadSensor;
   }
 }
 implementation {
@@ -96,7 +101,7 @@ implementation {
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
-      call MilliTimer.startPeriodic(750);
+      call MilliTimer.startPeriodic(2000);
     }
     else {
       call AMControl.start();
@@ -129,7 +134,8 @@ implementation {
 	dbg("RadioCountToLedsC", "RadioCountToLedsC: packet sent.\n", counter);
         call ReadX.read();
         call ReadY.read();
-        call ReadZ.read();	
+        call ReadZ.read();
+        //call ReadSensor.read();	
 	locked = TRUE;
       }
     }
@@ -186,6 +192,11 @@ implementation {
       addr = call AMAdd.amAddress();
       printf("My address is %u\n", (uint16_t*) addr);
       printfflush();
+
+      //FILE* fp;
+      //fp = fopen("/vagrant/test.txt", "w+");
+      //fprintf(fp, "pewpewpew\n", fp);
+      //fclose(fp);
     }
   }
 
@@ -209,7 +220,14 @@ implementation {
       printfflush();
     }
   }
-
+/*
+  event void ReadSensor.readDone(error_t result, uint16_t data){
+    if (result == SUCCESS){
+      printf("Light: %d\n", data);
+      printfflush();
+    }
+  }
+*/
   async event void AMAdd.changed(){
     //do nothing. why is this needed?
   }
