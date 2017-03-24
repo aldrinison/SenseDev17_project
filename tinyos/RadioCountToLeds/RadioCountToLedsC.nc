@@ -146,14 +146,14 @@ implementation {
     dbg("RadioCountToLedsC", "Received packet of length %hhu.\n", len);
 
     isforme = call AMPacket.isForMe(bufPtr);
-    printf("isforme = %d\n", isforme);
-    printfflush();
+    //printf("isforme = %d\n", isforme);
+    //printfflush();
     if (isforme){
       int_holder = call CC2420Packet.getRssi(&packet);
 
-      printf("Message received at RSSI of %d ", int_holder);
-      printf("from %d\n", call AMPacket.source(bufPtr));
-      printfflush();
+      //printf("Message received at RSSI of %d ", int_holder);
+      //printf("from %d\n", call AMPacket.source(bufPtr));
+      //printfflush();
       if (len != sizeof(radio_count_msg_t)) {return bufPtr;}
       else {
         radio_count_msg_t* rcm = (radio_count_msg_t*)payload;
@@ -188,10 +188,10 @@ implementation {
     if (&packet == bufPtr) {
       locked = FALSE;
       int_holder = call CC2420Packet.getPower(&packet);
-      printf("Sending done at %d\n", int_holder);
+      //printf("Sending done at %d\n", int_holder);
       addr = call AMAdd.amAddress();
-      printf("My address is %u\n", (uint16_t*) addr);
-      printfflush();
+      //printf("My address is %u\n", (uint16_t*) addr);
+      //printfflush();
 
       //FILE* fp;
       //fp = fopen("/vagrant/test.txt", "w+");
@@ -202,21 +202,22 @@ implementation {
 
   event void ReadX.readDone(error_t result, uint16_t data){
     if (result == SUCCESS){
-      printf("X = %d\n", data);
+      
+      printf("XYZ,%d,", data);
       printfflush();
     }
   }
 
   event void ReadY.readDone(error_t result, uint16_t data){
     if (result == SUCCESS){
-      printf("Y = %d\n", data);
+      printf("%d,", data);
       printfflush();
     }
   }
 
   event void ReadZ.readDone(error_t result, uint16_t data){
     if (result == SUCCESS){
-      printf("Z = %d\n", data);
+      printf("%d\n", data);
       printfflush();
     }
   }
