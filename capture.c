@@ -14,8 +14,10 @@ int main(){
     //filtering
     if ((buff[0] == 'X') && (buff[1] == 'Y') && (buff[2] == 'Z')) {
       data = fopen("/vagrant/datadump.txt", "w+");
+      //printf("File is open\n");
       fprintf(data, "%s", buff);      
       fclose(data);
+      //printf("File closed\n");
     }
   }
 
